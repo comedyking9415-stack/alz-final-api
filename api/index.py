@@ -29,7 +29,7 @@ def search():
         'skip_download': True,
         'nocheckcertificate': True,
         'ignoreerrors': True,
-        'playlist_items': '1-10',
+        'playlist_items': '1-5',
         'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
     }
 
