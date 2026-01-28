@@ -15,7 +15,6 @@ def search():
     if not query:
         return jsonify({"error": "No query"}), 400
 
-    # इसे और भी हल्का और फ़ास्ट बनाया है
     ydl_opts = {
         'quiet': True,
         'extract_flat': 'in_playlist',
@@ -31,7 +30,7 @@ def search():
             results = []
             if 'entries' in info:
                 for entry in info['entries']:
-                    if entry: # खाली डेटा न आए
+                    if entry:
                         results.append({
                             "id": entry.get('id'),
                             "title": entry.get('title'),
@@ -40,8 +39,4 @@ def search():
             return jsonify(results)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-# Vercel के लिए
-def handler(event, context):
-    return app(event, context)
-    
+        
