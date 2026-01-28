@@ -5,6 +5,11 @@ import yt_dlp
 app = Flask(__name__)
 CORS(app)
 
+# होम पेज के लिए (ताकि 404 न आए और तुझे पता चले API चल रही है)
+@app.route('/')
+def home():
+    return jsonify({"status": "Online", "message": "Alpha Zen API is Running!"})
+
 @app.route('/api/search')
 def search():
     query = request.args.get('q')
@@ -13,6 +18,7 @@ def search():
 
     if query.startswith('@'):
         handle = query.replace('@', '')
+        # चैनल का होमपेज लाइव/अपकमिंग के लिए बेस्ट है
         search_target = f"https://www.youtube.com/@{handle}"
     else:
         search_target = f"ytsearch10:{query}"
@@ -31,7 +37,7 @@ def search():
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(search_target, download=False)
             results = []
-            seen_ids = set() # Improvement 1: Duplicate Filter
+            seen_ids = set()
             
             entries = info.get('entries', [])
             if not entries and 'id' in info: entries = [info]
@@ -40,6 +46,7 @@ def search():
                 if not entry: continue
                 
                 v_id = entry.get('id')
+                # चैनल आईडी (UC...) को फ़िल्टर करना
                 if not v_id or v_id.startswith('UC') or v_id in seen_ids: 
                     continue 
 
@@ -54,13 +61,13 @@ def search():
                     "thumbnail": f"https://img.youtube.com/vi/{v_id}/hqdefault.jpg"
                 })
             
-            # Improvement 2: Priority Sorting (Live > Upcoming > Normal)
+            # Priority Sorting: Live सबसे ऊपर, फिर Upcoming
             results.sort(key=lambda x: (x['is_live'], x['is_upcoming']), reverse=True)
             
             return jsonify(results)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-if __name__ == '__main__':
-    app.run()
+# Vercel के लिए app को एक्सपोर्ट करना ज़रूरी है
+# app.run() की ज़रूरत नहीं है
 
